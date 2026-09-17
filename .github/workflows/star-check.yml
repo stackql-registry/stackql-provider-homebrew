@@ -14,25 +14,50 @@ jobs:
         echo "username=${{ github.event.pull_request.user.login }}" >> $GITHUB_ENV
         echo "current_repo=${{ github.event.repository.name }}" >> $GITHUB_ENV
         echo "current_owner=${{ github.repository_owner }}" >> $GITHUB_ENV
+    # community check: authors who can push to this repository are exempt
+    - name: Check whether the PR author is a repository collaborator
+      id: exempt
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        association='${{ github.event.pull_request.author_association }}'
+        permission=$(gh api "repos/${{ github.repository }}/collaborators/${{ env.username }}/permission" --jq .permission 2>/dev/null || echo "unknown")
+        echo "author association: $association, repository permission: $permission"
+        case "$association:$permission" in
+          OWNER:*|MEMBER:*|COLLABORATOR:*|*:admin|*:maintain|*:write) echo "exempt=true" >> $GITHUB_OUTPUT ;;
+          *) echo "exempt=false" >> $GITHUB_OUTPUT ;;
+        esac
     - name: Pull github provider
+      if: steps.exempt.outputs.exempt != 'true'
       uses: stackql/stackql-exec@v2.2.1
       with:
         is_command: 'true'
         query: "REGISTRY PULL github;"
     - name: Run stackql query
+      if: steps.exempt.outputs.exempt != 'true'
       id: check-star
       uses: stackql/stackql-assert@v2.2.1
+      # the workflow GITHUB_TOKEN cannot read another repository's stargazers
+      # (stackql/stackql), so the lookup needs a token with public read access
+      # in the STACKQL_GITHUB_TOKEN secret
+      env:
+        STACKQL_GITHUB_TOKEN: ${{ secrets.STACKQL_GITHUB_TOKEN }}
       with:
+        auth_str: '{ "github": { "type": "bearer", "credentialsenvvar": "STACKQL_GITHUB_TOKEN" } }'
         test_query: |
-          SELECT repo, count(*) as has_starred
+          SELECT 'stackql' as repo, count(*) as has_starred
           FROM github.activity.repo_stargazers
-          WHERE owner = '${{ env.current_owner }}' and repo IN ('stackql','${{ env.current_repo }}')
+          WHERE owner = 'stackql' and repo = 'stackql' and per_page = 100
           AND login = '${{ env.username }}'
-          GROUP BY repo;
+          UNION ALL
+          SELECT '${{ env.current_repo }}' as repo, count(*) as has_starred
+          FROM github.activity.repo_stargazers
+          WHERE owner = '${{ env.current_owner }}' and repo = '${{ env.current_repo }}' and per_page = 100
+          AND login = '${{ env.username }}';
         expected_results_str: '[{"has_starred":"1","repo":"stackql"},{"has_starred":"1","repo":"${{ env.current_repo }}"}]'
       continue-on-error: true
     - name: Check if starred
-      if: always() # Ensures this runs regardless of check-star outcome
+      if: always() && steps.exempt.outputs.exempt != 'true'
       run: |
         if [ "${{ steps.check-star.outcome }}" = "success" ]; then
           echo "::notice::Thanks for your support!"
@@ -40,3 +65,6 @@ jobs:
           echo "::error::It seems you haven't starred the required repositories. Please star the following repos before proceeding: https://github.com/${{ env.current_owner }}/${{ env.current_repo }} (this repo) and https://github.com/stackql/stackql (our core repo)"
           exit 1
         fi
+    - name: Star check not applicable
+      if: steps.exempt.outputs.exempt == 'true'
+      run: echo "::notice::${{ env.username }} can push to this repository; the star check does not apply."
