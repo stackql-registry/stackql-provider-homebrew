@@ -24,11 +24,15 @@ jobs:
       uses: stackql/stackql-assert@v2.2.1
       with:
         test_query: |
-          SELECT repo, count(*) as has_starred
+          SELECT 'stackql' as repo, count(*) as has_starred
           FROM github.activity.repo_stargazers
-          WHERE owner = '${{ env.current_owner }}' and repo IN ('stackql','${{ env.current_repo }}')
+          WHERE owner = 'stackql' and repo = 'stackql'
           AND login = '${{ env.username }}'
-          GROUP BY repo;
+          UNION ALL
+          SELECT '${{ env.current_repo }}' as repo, count(*) as has_starred
+          FROM github.activity.repo_stargazers
+          WHERE owner = '${{ env.current_owner }}' and repo = '${{ env.current_repo }}'
+          AND login = '${{ env.username }}';
         expected_results_str: '[{"has_starred":"1","repo":"stackql"},{"has_starred":"1","repo":"${{ env.current_repo }}"}]'
       continue-on-error: true
     - name: Check if starred
