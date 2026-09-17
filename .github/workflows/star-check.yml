@@ -22,19 +22,19 @@ jobs:
     - name: Run stackql query
       id: check-star
       uses: stackql/stackql-assert@v2.2.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        auth_str: '{ "github": { "type": "bearer", "credentialsenvvar": "GITHUB_TOKEN" } }'
+        # the stargazers endpoint is public; the workflow token cannot read
+        # other repositories, so the lookup runs unauthenticated
+        auth_str: '{ "github": { "type": "null_auth" } }'
         test_query: |
           SELECT 'stackql' as repo, count(*) as has_starred
           FROM github.activity.repo_stargazers
-          WHERE owner = 'stackql' and repo = 'stackql'
+          WHERE owner = 'stackql' and repo = 'stackql' and per_page = 100
           AND login = '${{ env.username }}'
           UNION ALL
           SELECT '${{ env.current_repo }}' as repo, count(*) as has_starred
           FROM github.activity.repo_stargazers
-          WHERE owner = '${{ env.current_owner }}' and repo = '${{ env.current_repo }}'
+          WHERE owner = '${{ env.current_owner }}' and repo = '${{ env.current_repo }}' and per_page = 100
           AND login = '${{ env.username }}';
         expected_results_str: '[{"has_starred":"1","repo":"stackql"},{"has_starred":"1","repo":"${{ env.current_repo }}"}]'
       continue-on-error: true
