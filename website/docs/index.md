@@ -48,8 +48,106 @@ REGISTRY PULL homebrew;
 
 ## Authentication
 
+The Homebrew formulae API at `https://formulae.brew.sh/api` is public and read-only, so the provider needs no credentials: no environment variables or `--auth` flag are required. The provider supports `SELECT` methods only.
 
-> The `homebrew` provider for StackQL supports `SELECT` methods only and does not require any environment variables to be set for authentication.  
+## Example Queries
+
+Try the following queries using `stackql shell`, or run them from a script or CI pipeline with `stackql exec`.
+
+### Formula details
+
+Name, description, homepage, license and latest stable version of one formula (`desc` is a reserved word, so it is double-quoted):
+
+```sql
+SELECT name, "desc" AS description, homepage, license,
+       json_extract(versions, '$.stable') AS latest_version
+FROM homebrew.formula.formula
+WHERE formula_name = 'wget';
+```
+
+### Versions and bottle status
+
+Stable and HEAD versions, and whether a prebuilt bottle is published, from the `vw_versions` view:
+
+```sql
+SELECT formula_name, stable_version, head_version, bottle_available
+FROM homebrew.formula.vw_versions
+WHERE formula_name = 'curl';
+```
+
+### Runtime and build dependencies
+
+Every runtime and build dependency as its own row, expanded from the `dependencies` and `build_dependencies` arrays with `json_each`:
+
+```sql
+SELECT f.name, 'runtime' AS kind, d.value AS dependency
+FROM homebrew.formula.formula f, json_each(f.dependencies) d
+WHERE f.formula_name = 'git'
+UNION ALL
+SELECT f.name, 'build', b.value
+FROM homebrew.formula.formula f, json_each(f.build_dependencies) b
+WHERE f.formula_name = 'git';
+```
+
+### Install analytics
+
+Installs and installs-on-request over the last 30, 90 and 365 days for one formula:
+
+```sql
+SELECT formula_name,
+       installs_30d, installs_90d, installs_365d,
+       install_on_requests_30d, install_on_requests_90d, install_on_requests_365d
+FROM homebrew.formula.vw_usage_metrics
+WHERE formula_name = 'wget';
+```
+
+### Deprecated and disabled formulae
+
+Deprecation and disable dates and reasons for a set of versioned formulae (a name that has been removed from homebrew-core returns no row):
+
+```sql
+SELECT formula_name, deprecated, deprecation_date, deprecation_reason,
+       disabled, disable_date, disable_reason
+FROM homebrew.formula.vw_lifecycle
+WHERE formula_name IN ('node@18', 'python@3.9', 'postgresql@13')
+ORDER BY disable_date;
+```
+
+### Source and head URLs
+
+Stable tarball URL and checksum plus the HEAD repository and branch, for checking a formula against upstream:
+
+```sql
+SELECT formula_name, stable_url, stable_checksum, head_url, head_branch
+FROM homebrew.formula.vw_urls
+WHERE formula_name = 'git';
+```
+
+### Install counts across formulae
+
+Thirty-day and one-year install counts for several formulae in one ranked result (the `IN` list issues one request per formula):
+
+```sql
+SELECT name,
+       json_extract(analytics, '$.install.30d.' || name) AS installs_30d,
+       json_extract(analytics, '$.install.365d.' || name) AS installs_365d
+FROM homebrew.formula.formula
+WHERE formula_name IN ('wget', 'curl', 'jq')
+ORDER BY installs_30d DESC;
+```
+
+### Bottles per platform
+
+One row per platform that has a bottle, with the blob URL and checksum, expanded from `bottle.stable.files`:
+
+```sql
+SELECT f.name, p.key AS platform,
+       json_extract(p.value, '$.url') AS bottle_url,
+       json_extract(p.value, '$.sha256') AS sha256
+FROM homebrew.formula.formula f,
+     json_each(json_extract(f.bottle, '$.stable.files')) p
+WHERE f.formula_name = 'wget';
+```
 
 ## Services
 <div class="row">
