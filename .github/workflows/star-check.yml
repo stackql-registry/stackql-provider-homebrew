@@ -22,7 +22,10 @@ jobs:
     - name: Run stackql query
       id: check-star
       uses: stackql/stackql-assert@v2.2.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
+        auth_str: '{ "github": { "type": "bearer", "credentialsenvvar": "GITHUB_TOKEN" } }'
         test_query: |
           SELECT 'stackql' as repo, count(*) as has_starred
           FROM github.activity.repo_stargazers
