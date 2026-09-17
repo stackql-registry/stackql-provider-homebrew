@@ -4,6 +4,8 @@ on:
     types: [opened, synchronize, reopened]
 jobs:
   check-starred:
+    # community check: repository owners, members and collaborators are exempt
+    if: ${{ !contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) }}
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -22,10 +24,13 @@ jobs:
     - name: Run stackql query
       id: check-star
       uses: stackql/stackql-assert@v2.2.1
+      # the workflow GITHUB_TOKEN cannot read another repository's stargazers
+      # (stackql/stackql), so the lookup needs a token with public read access
+      # in the STACKQL_GITHUB_TOKEN secret
+      env:
+        STACKQL_GITHUB_TOKEN: ${{ secrets.STACKQL_GITHUB_TOKEN }}
       with:
-        # the stargazers endpoint is public; the workflow token cannot read
-        # other repositories, so the lookup runs unauthenticated
-        auth_str: '{ "github": { "type": "null_auth" } }'
+        auth_str: '{ "github": { "type": "bearer", "credentialsenvvar": "STACKQL_GITHUB_TOKEN" } }'
         test_query: |
           SELECT 'stackql' as repo, count(*) as has_starred
           FROM github.activity.repo_stargazers
