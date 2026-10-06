@@ -1,44 +1,89 @@
----
+--- 
 title: vw_info
 hide_title: false
 hide_table_of_contents: false
 keywords:
   - vw_info
   - formula
-  - homebrew    
-  - stackql
+  - homebrew
   - infrastructure-as-code
   - configuration-as-data
   - cloud inventory
-description: Query and report on Homebrew packages using SQL
+description: Query, deploy and manage homebrew resources using SQL
 custom_edit_url: null
-image: /img/providers/homebrew/stackql-homebrew-provider-featured-image.png
+image: /img/stackql-homebrew-provider-featured-image.png
 ---
 
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
+import CodeBlock from '@theme/CodeBlock';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-
-
+Creates, updates, deletes, gets or lists a <code>vw_info</code> resource.
 
 ## Overview
 <table><tbody>
-<tr><td><b>Name</b></td><td><code>vw_info</code></td></tr>
-<tr><td><b>Type</b></td><td>Resource</td></tr>
+<tr><td><b>Name</b></td><td><CopyableCode code="vw_info" /></td></tr>
+<tr><td><b>Type</b></td><td>View</td></tr>
 <tr><td><b>Id</b></td><td><CopyableCode code="homebrew.formula.vw_info" /></td></tr>
 </tbody></table>
 
 ## Fields
-> This resource is a view. For the view definition, please refer to the provider spec in the [stackql-provider-registry](https://github.com/stackql/stackql-provider-registry/blob/dev/providers/src/homebrew/v00.00.00000/services/formula.yaml), located under `components -> x-stackQL-resources -> vw_info`.
 
-| Name | Datatype |
-|:-----|:---------|
-| <CopyableCode code="deprecated" /> | `boolean` |
-| <CopyableCode code="disabled" /> | `boolean` |
-| <CopyableCode code="formula_name" /> | `text` |
-| <CopyableCode code="full_name" /> | `text` |
-| <CopyableCode code="generated_date" /> | `text` |
-| <CopyableCode code="homepage" /> | `text` |
-| <CopyableCode code="latest_version" /> ||
-| <CopyableCode code="license" /> | `text` |
-## Methods
-No additional methods available for this resource
+See the SQL Definition (view DDL) for fields returned by this view.
+
+## `SELECT` Examples
+
+```sql
+SELECT
+  *
+FROM homebrew.formula.vw_info;
+```
+
+## SQL Definition
+
+<Tabs
+defaultValue="Sqlite3"
+values={[
+{ label: 'Sqlite3', value: 'Sqlite3' },
+{ label: 'Postgres', value: 'Postgres' }
+]}
+>
+<TabItem value="Sqlite3">
+
+```sql
+SELECT
+name as formula_name,
+full_name,
+generated_date,
+homepage,
+JSON_EXTRACT(versions, '$.stable') as latest_version,
+license,
+deprecated,
+disabled
+FROM
+homebrew.formula.formula
+WHERE formula_name = 'stackql'
+```
+
+</TabItem>
+<TabItem value="Postgres">
+
+```sql
+SELECT
+name as formula_name,
+full_name,
+generated_date,
+--desc as description,
+homepage,
+json_extract_path_text(versions, 'stable') as latest_version,
+license,
+deprecated,
+disabled
+FROM
+homebrew.formula.formula
+WHERE formula_name = 'stackql'          
+```
+
+</TabItem>
+</Tabs>

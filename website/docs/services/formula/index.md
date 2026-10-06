@@ -9,33 +9,18 @@ keywords:
   - infrastructure-as-code
   - configuration-as-data
   - cloud inventory
-description: Query and report on Homebrew packages using SQL
+description: Query, deploy and manage homebrew resources using SQL
 custom_edit_url: null
 image: /img/stackql-homebrew-provider-featured-image.png
 ---
 
-API For Accessing Homebrew Formulae Information.  
-    
-:::info Service Summary
+formula service documentation.
 
-<div class="row">
-<div class="providerDocColumn">
-<span>total resources:&nbsp;<b>9</b></span><br />
-<span>total selectable resources:&nbsp;<b>9</b></span><br />
-<span>total methods:&nbsp;<b>9</b></span><br />
-</div>
-</div>
+:::info[Service Summary]
+
+total resources: __9__  
 
 :::
-
-## Overview
-<table><tbody>
-<tr><td><b>Name</b></td><td><code>homebrew.formula</code></td></tr>
-<tr><td><b>Type</b></td><td>Service</td></tr>
-<tr><td><b>Title</b></td><td>Homebrew Formulae API</td></tr>
-<tr><td><b>Description</b></td><td>API For Accessing Homebrew Formulae Information.</td></tr>
-<tr><td><b>Id</b></td><td><code>formula:v24.03.00212</code></td></tr>
-</tbody></table>
 
 ## Resources
 <div class="row">
@@ -44,12 +29,12 @@ API For Accessing Homebrew Formulae Information.
 <a href="/services/formula/vw_build_errors/">vw_build_errors</a><br />
 <a href="/services/formula/vw_conflicts/">vw_conflicts</a><br />
 <a href="/services/formula/vw_dependencies/">vw_dependencies</a><br />
-<a href="/services/formula/vw_info/">vw_info</a><br />
+<a href="/services/formula/vw_info/">vw_info</a>
 </div>
 <div class="providerDocColumn">
 <a href="/services/formula/vw_lifecycle/">vw_lifecycle</a><br />
 <a href="/services/formula/vw_urls/">vw_urls</a><br />
 <a href="/services/formula/vw_usage_metrics/">vw_usage_metrics</a><br />
-<a href="/services/formula/vw_versions/">vw_versions</a><br />
+<a href="/services/formula/vw_versions/">vw_versions</a>
 </div>
 </div>

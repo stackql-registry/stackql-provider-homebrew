@@ -1,46 +1,92 @@
----
+--- 
 title: vw_urls
 hide_title: false
 hide_table_of_contents: false
 keywords:
   - vw_urls
   - formula
-  - homebrew    
-  - stackql
+  - homebrew
   - infrastructure-as-code
   - configuration-as-data
   - cloud inventory
-description: Query and report on Homebrew packages using SQL
+description: Query, deploy and manage homebrew resources using SQL
 custom_edit_url: null
-image: /img/providers/homebrew/stackql-homebrew-provider-featured-image.png
+image: /img/stackql-homebrew-provider-featured-image.png
 ---
 
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
+import CodeBlock from '@theme/CodeBlock';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-
-
+Creates, updates, deletes, gets or lists a <code>vw_urls</code> resource.
 
 ## Overview
 <table><tbody>
-<tr><td><b>Name</b></td><td><code>vw_urls</code></td></tr>
-<tr><td><b>Type</b></td><td>Resource</td></tr>
+<tr><td><b>Name</b></td><td><CopyableCode code="vw_urls" /></td></tr>
+<tr><td><b>Type</b></td><td>View</td></tr>
 <tr><td><b>Id</b></td><td><CopyableCode code="homebrew.formula.vw_urls" /></td></tr>
 </tbody></table>
 
 ## Fields
-> This resource is a view. For the view definition, please refer to the provider spec in the [stackql-provider-registry](https://github.com/stackql/stackql-provider-registry/blob/dev/providers/src/homebrew/v00.00.00000/services/formula.yaml), located under `components -> x-stackQL-resources -> vw_urls`.
 
-| Name | Datatype |
-|:-----|:---------|
-| <CopyableCode code="formula_name" /> | `text` |
-| <CopyableCode code="head_branch" /> ||
-| <CopyableCode code="head_url" /> ||
-| <CopyableCode code="head_using" /> ||
-| <CopyableCode code="homepage" /> | `text` |
-| <CopyableCode code="stable_checksum" /> ||
-| <CopyableCode code="stable_revision" /> ||
-| <CopyableCode code="stable_tag" /> ||
-| <CopyableCode code="stable_url" /> ||
-| <CopyableCode code="stable_using" /> ||
-## Methods
-No additional methods available for this resource
+See the SQL Definition (view DDL) for fields returned by this view.
+
+## `SELECT` Examples
+
+```sql
+SELECT
+  *
+FROM homebrew.formula.vw_urls;
+```
+
+## SQL Definition
+
+<Tabs
+defaultValue="Sqlite3"
+values={[
+{ label: 'Sqlite3', value: 'Sqlite3' },
+{ label: 'Postgres', value: 'Postgres' }
+]}
+>
+<TabItem value="Sqlite3">
+
+```sql
+SELECT
+name as formula_name,
+homepage,
+JSON_EXTRACT(urls, '$.stable.url') as stable_url,
+JSON_EXTRACT(urls, '$.stable.tag') as stable_tag,
+JSON_EXTRACT(urls, '$.stable.revision') as stable_revision,
+JSON_EXTRACT(urls, '$.stable.using') as stable_using,
+JSON_EXTRACT(urls, '$.stable.checksum') as stable_checksum,
+JSON_EXTRACT(urls, '$.head.url') as head_url,
+JSON_EXTRACT(urls, '$.head.branch') as head_branch,
+JSON_EXTRACT(urls, '$.head.using') as head_using
+FROM
+homebrew.formula.formula
+WHERE formula_name = 'stackql'
+```
+
+</TabItem>
+<TabItem value="Postgres">
+
+```sql
+SELECT
+name as formula_name,
+homepage,
+json_extract_path_text(urls, 'stable', 'url') as stable_url,
+json_extract_path_text(urls, 'stable', 'tag') as stable_tag,
+json_extract_path_text(urls, 'stable', 'revision') as stable_revision,
+json_extract_path_text(urls, 'stable', 'using') as stable_using,
+json_extract_path_text(urls, 'stable', 'checksum') as stable_checksum,
+json_extract_path_text(urls, 'head', 'url') as head_url,
+json_extract_path_text(urls, 'head', 'branch') as head_branch,
+json_extract_path_text(urls, 'head', 'using') as head_using
+FROM
+homebrew.formula.formula
+WHERE formula_name = 'stackql'
+```
+
+</TabItem>
+</Tabs>

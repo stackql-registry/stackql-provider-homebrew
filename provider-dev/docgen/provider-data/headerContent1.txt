@@ -1,19 +1,19 @@
 ---
-title: REPLACEME
+title: homebrew
 hide_title: false
 hide_table_of_contents: false
 keywords:
-  - REPLACEME
+  - homebrew
   - stackql
   - infrastructure-as-code
   - configuration-as-data
   - cloud inventory
-description: Query, deploy and manage REPLACEME resources using SQL
+description: Query and report on Homebrew packages using SQL
 custom_edit_url: null
-image: /img/stackql-REPLACEME-provider-featured-image.png
+image: /img/stackql-homebrew-provider-featured-image.png
 id: 'provider-intro'
 ---
 
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
 
-REPLACEME with description for the provider.
+Open-source package manager for macOS and Linux.  

@@ -1,40 +1,86 @@
----
+--- 
 title: vw_versions
 hide_title: false
 hide_table_of_contents: false
 keywords:
   - vw_versions
   - formula
-  - homebrew    
-  - stackql
+  - homebrew
   - infrastructure-as-code
   - configuration-as-data
   - cloud inventory
-description: Query and report on Homebrew packages using SQL
+description: Query, deploy and manage homebrew resources using SQL
 custom_edit_url: null
-image: /img/providers/homebrew/stackql-homebrew-provider-featured-image.png
+image: /img/stackql-homebrew-provider-featured-image.png
 ---
 
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
+import CodeBlock from '@theme/CodeBlock';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-
-
+Creates, updates, deletes, gets or lists a <code>vw_versions</code> resource.
 
 ## Overview
 <table><tbody>
-<tr><td><b>Name</b></td><td><code>vw_versions</code></td></tr>
-<tr><td><b>Type</b></td><td>Resource</td></tr>
+<tr><td><b>Name</b></td><td><CopyableCode code="vw_versions" /></td></tr>
+<tr><td><b>Type</b></td><td>View</td></tr>
 <tr><td><b>Id</b></td><td><CopyableCode code="homebrew.formula.vw_versions" /></td></tr>
 </tbody></table>
 
 ## Fields
-> This resource is a view. For the view definition, please refer to the provider spec in the [stackql-provider-registry](https://github.com/stackql/stackql-provider-registry/blob/dev/providers/src/homebrew/v00.00.00000/services/formula.yaml), located under `components -> x-stackQL-resources -> vw_versions`.
 
-| Name | Datatype |
-|:-----|:---------|
-| <CopyableCode code="bottle_available" /> ||
-| <CopyableCode code="formula_name" /> | `text` |
-| <CopyableCode code="head_version" /> ||
-| <CopyableCode code="stable_version" /> ||
-## Methods
-No additional methods available for this resource
+See the SQL Definition (view DDL) for fields returned by this view.
+
+## `SELECT` Examples
+
+```sql
+SELECT
+  *
+FROM homebrew.formula.vw_versions;
+```
+
+## SQL Definition
+
+<Tabs
+defaultValue="Sqlite3"
+values={[
+{ label: 'Sqlite3', value: 'Sqlite3' },
+{ label: 'Postgres', value: 'Postgres' }
+]}
+>
+<TabItem value="Sqlite3">
+
+```sql
+SELECT
+name as formula_name,
+JSON_EXTRACT(versions, '$.stable') as stable_version,
+JSON_EXTRACT(versions, '$.head') as head_version,
+CASE 
+WHEN JSON_EXTRACT(versions, '$.bottle') = 1 THEN 'true'
+ELSE 'false' 
+END as bottle_available
+FROM
+homebrew.formula.formula
+WHERE formula_name = 'stackql'
+```
+
+</TabItem>
+<TabItem value="Postgres">
+
+```sql
+SELECT
+name as formula_name,
+json_extract_path_text(versions, 'stable') as stable_version,
+json_extract_path_text(versions, 'head') as head_version,
+CASE 
+WHEN json_extract_path_text(versions, 'bottle')::boolean THEN 'true'
+ELSE 'false' 
+END as bottle_available
+FROM
+homebrew.formula.formula
+WHERE formula_name = 'stackql'          
+```
+
+</TabItem>
+</Tabs>

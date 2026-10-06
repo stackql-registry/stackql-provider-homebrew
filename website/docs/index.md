@@ -10,26 +10,20 @@ keywords:
   - cloud inventory
 description: Query and report on Homebrew packages using SQL
 custom_edit_url: null
-image: /img/providers/homebrew/stackql-homebrew-provider-featured-image.png
+image: /img/stackql-homebrew-provider-featured-image.png
 id: 'provider-intro'
 ---
 
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
 
 Open-source package manager for macOS and Linux.  
-    
-:::info Provider Summary (v24.03.00212)
 
-<div class="row">
-<div class="providerDocColumn">
-<span>total services:&nbsp;<b>1</b></span><br />
-<span>total methods:&nbsp;<b>9</b></span><br />
-</div>
-<div class="providerDocColumn">
-<span>total resources:&nbsp;<b>9</b></span><br />
-<span>total selectable resources:&nbsp;<b>9</b></span><br />
-</div>
-</div>
+
+:::info[Provider Summary] 
+
+total services: __1__  
+total resources: __10__  
+source project: __[stackql-provider-homebrew](https://github.com/stackql-registry/stackql-provider-homebrew)__  
 
 :::
 
@@ -149,11 +143,13 @@ FROM homebrew.formula.formula f,
 WHERE f.formula_name = 'wget';
 ```
 
+
 ## Services
 <div class="row">
 <div class="providerDocColumn">
 <a href="/services/formula/">formula</a><br />
 </div>
 <div class="providerDocColumn">
+
 </div>
 </div>
