@@ -259,6 +259,34 @@ div:has(> .vhsImage) {
   }
 
 /*
+* breadcrumbs with actions (stackql-deploy dropdown)
+*/
+.breadcrumbs-with-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+
+.breadcrumbs-with-actions nav {
+  flex: 1;
+  min-width: 0;
+}
+
+/*
+* registry logo: swap to the narrower -mobile mark below the Docusaurus
+* mobile breakpoint (996px), per theme
+*/
+@media (max-width: 996px) {
+  .navbar__logo img[src$='stackql-registry-logo.svg'] {
+    content: url('/img/stackql-registry-logo-mobile.svg');
+  }
+  .navbar__logo img[src$='stackql-registry-logo-white.svg'] {
+    content: url('/img/stackql-registry-logo-white-mobile.svg');
+  }
+}
+
+/*
 * sidebar: back link to the main stackql.io docs (the first item in
 * sidebars.js). Same treatment as the query library site: bold label,
 * leading arrow drawn here so the label stays plain text, divider below.
