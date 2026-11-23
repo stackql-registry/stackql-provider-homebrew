@@ -9,7 +9,7 @@ keywords:
   - infrastructure-as-code
   - configuration-as-data
   - cloud inventory
-description: Query, deploy and manage homebrew resources using SQL
+description: "Query, deploy and manage the vw_urls resource in the homebrew formula service using SQL"
 custom_edit_url: null
 image: /img/stackql-homebrew-provider-featured-image.png
 ---
