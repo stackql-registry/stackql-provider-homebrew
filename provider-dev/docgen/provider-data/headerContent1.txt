@@ -12,6 +12,7 @@ description: Query and report on Homebrew packages using SQL
 custom_edit_url: null
 image: /img/stackql-homebrew-provider-featured-image.png
 id: 'provider-intro'
+softwareApplication: true
 ---
 
 import CopyableCode from '@site/src/components/CopyableCode/CopyableCode';
