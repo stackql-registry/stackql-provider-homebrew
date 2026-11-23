@@ -1,8 +1,10 @@
 import {themes as prismThemes} from 'prism-react-renderer';
-import { createConfig } from './.shared-config/index.js';
+import { createConfig, withStructuredData } from './.shared-config/index.js';
 import { providerName, providerTitle } from './provider.js';
 
-const config = createConfig({
+// withStructuredData: JSON-LD via @stackql/docusaurus-plugin-structured-data
+// (structured-data pilot; see the shared config README, "Structured data").
+const config = withStructuredData(createConfig({
   providerName,
   providerTitle,
   prismThemes,
@@ -14,7 +16,7 @@ const config = createConfig({
       faster: true,
     },
   },
-});
+}), { providerName, providerTitle });
 
 // Date-stamp every doc page ("Last updated on ..."). The pages are
 // regenerated and committed on every provider refresh, so the stamp is the
